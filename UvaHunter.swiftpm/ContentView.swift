@@ -6,7 +6,7 @@ struct ContentView: View {
     @State private var userName: String = ""
     @State private var userId: String = ""
     @State private var isButtonPressed: Bool = false
-    @State private var problems: String = ""
+    @State private var problems: MyData = MyData(values: [])
     @State private var name: String = ""
     
     var body: some View {
@@ -31,49 +31,56 @@ struct ContentView: View {
             }
             
             Text(userId)
-            Text(problems)
-//            ScrollView {
-//                ForEach(problems.indices) { idx in 
-//                    Text(problems[idx])
-//                }
-//            }
+                .padding()
+            ScrollView {
+                
+            }
         }
     }
     
     func getProblems(userId: String) {
-        guard let url = URL(string: "https://uhunt.onlinejudge.org/api/p/unsolved/\(userId)") else {
-            return 
-        }
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in 
-            if let error = error {
-                print(error)
-            } else if let data = data {
-                if let problems = String(data: data, encoding: .utf8) {
-                    DispatchQueue.main.sync {
-                        self.problems = problems
-                    }
+        if let url = URL(string: "https://uhunt.onlinejudge.org/api/p/unsolved/\(userId)") {
+            Task {
+                do {
+                    let (data, response) = try await URLSession.shared.data(from: url)
+                    let decodeData = try JSONDecoder().decode(MyData.self, from: data)
+                    self.problems = decodeData
+                } catch {
+                    print(error)
                 }
             }
-        }.resume()
+        }
     }
     
     func getUserId(userName: String) {
-        guard let url = URL(string: "https://uhunt.onlinejudge.org/api/uname2uid/\(userName)") else {
-            return 
-        }
-        
-        URLSession.shared.dataTask(with: url) { data, response, error in 
-            if let error = error {
-                print(error)
-            } else if let data = data {
+        if let url = URL(string: "https://uhunt.onlinejudge.org/api/uname2uid/\(userName)") {
+            Task {
+                let (data, response) = try await URLSession.shared.data(from: url)
                 if let id = String(data: data, encoding: .utf8) {
                     DispatchQueue.main.sync {
                         self.userId = id
                     }
                 }
             }
-        }.resume()
+        }
     }
     
+}
+
+struct MyData: Codable {
+    let values: [[Any]]
+    
+    enum CodingKeys: String, CodingKey {
+        case values
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        values = try container.decode([[Any]].self, forKey: .values)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(values, forKey: .values)
+    }
 }
