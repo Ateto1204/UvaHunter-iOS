@@ -6,7 +6,7 @@ struct ContentView: View {
     @State private var userName: String = ""
     @State private var userId: String = ""
     @State private var isButtonPressed: Bool = false
-    @State private var problems: MyData = MyData(values: [])
+    @State private var problems: [MyData] = []
     @State private var name: String = ""
     
     var body: some View {
@@ -43,8 +43,8 @@ struct ContentView: View {
             Task {
                 do {
                     let (data, response) = try await URLSession.shared.data(from: url)
-                    let decodeData = try JSONDecoder().decode(MyData.self, from: data)
-                    self.problems = decodeData
+                    let decodedData = try JSONDecoder().decode([MyData].self, from: data)
+                    self.problems = decodedData
                 } catch {
                     print(error)
                 }
@@ -67,20 +67,44 @@ struct ContentView: View {
     
 }
 
-struct MyData: Codable {
-    let values: [[Any]]
-    
-    enum CodingKeys: String, CodingKey {
-        case values
+struct MyData {
+    var values: [MyType]
+}
+
+extension MyData: Codable {
+    init(from decoder: Decoder) throws {
+        values = [MyType]()
+        var container = try decoder.unkeyedContainer()
+        while !container.isAtEnd {
+            let value = try container.decode(MyType.self)
+            values.append(value)
+        }
     }
+}
+
+enum MyType: Codable {
+    case intType(Int)
+    case stringType(String)
     
     init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        values = try container.decode([[Any]].self, forKey: .values)
+        if let intType = try? decoder.singleValueContainer().decode(Int.self) {
+            self = .intType(intType)
+            return 
+        } else if let stringType = try? decoder.singleValueContainer().decode(String.self) {
+            self = .stringType(stringType)
+            return 
+        }
+        
+        throw DecodingError.typeMismatch(MyType.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Unsupported Type..."))
     }
     
     func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(values, forKey: .values)
+        var container = encoder.singleValueContainer()
+        switch self {
+        case .intType(let value): 
+            try container.encode(value)
+        case .stringType(let value): 
+            try container.encode(value)
+        }
     }
 }
