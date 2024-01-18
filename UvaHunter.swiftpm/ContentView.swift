@@ -8,39 +8,50 @@ struct ContentView: View {
     @State private var isButtonPressed: Bool = false
     @State private var problems: [Item] = []
     @State private var name: String = ""
+    @State private var hasResponsed: Bool = true
     
     var body: some View {
-        VStack {
-            HStack {
-                TextField("Enter the user name", text: $userName)
-                    .padding()
-                    .background(Color.gray)
-                    .cornerRadius(6)
-                    .padding()
-                Button {
-                    print(userName)
-                    getUserId(userName: userName)
-                    getProblems(userId: userId)
-                } label: {
-                    Image(systemName: "location.circle")
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 36, height: 36)
-                        .padding(.trailing, 20)
+        ZStack {
+            VStack {
+                HStack {
+                    TextField("Enter the user name", text: $userName)
+                        .padding()
+                        .background(Color.gray)
+                        .cornerRadius(6)
+                        .padding()
+                    Button {
+                        self.hasResponsed = false
+                        getUserId(userName: userName)
+                        getProblems(userId: userId)
+                    } label: {
+                        Image(systemName: "location.circle")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 36, height: 36)
+                            .padding(.trailing, 20)
+                    }
                 }
-            }
-            
-            Text("ID: \(userId)")
-                .padding()
-            ScrollView {
-                VStack(alignment: .leading) {
-                    if problems.count > 0 {
-                        ForEach(problems.indices) { idx in 
-                            Text("\(problems[idx].letter)")
-                                .padding()
+                
+                Text("ID: \(userId)")
+                    .padding()
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        if problems.count > 0 {
+                            ForEach(problems.indices) { idx in 
+                                HStack {
+                                    Text("\(problems[idx].number)")
+                                        .padding()
+                                    Text("\(problems[idx].letter)")
+                                        .padding()
+                                }
+                            }
                         }
                     }
                 }
+            }
+            if !hasResponsed {
+                ProgressView()
+                    .padding()
             }
         }
     }
@@ -52,7 +63,7 @@ struct ContentView: View {
                     let (data, response) = try await URLSession.shared.data(from: url)
                     let decodedData = try JSONDecoder().decode([Item].self, from: data)
                     self.problems = decodedData
-                    
+                    self.hasResponsed = true
                 } catch {
                     print(error)
                 }
