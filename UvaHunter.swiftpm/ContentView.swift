@@ -36,14 +36,20 @@ struct ContentView: View {
                     .padding()
                 ScrollView {
                     VStack(alignment: .leading) {
-                        if problems.count > 0 {
-                            ForEach(problems.indices) { idx in 
+                        if problems.count > 5 {
+                            ForEach(0..<5) { i in 
+                                let picked: Int = .random(in: 0...problems.endIndex)
                                 HStack {
-                                    Text("\(problems[idx].number)")
-                                        .padding()
-                                    Text("\(problems[idx].letter)")
-                                        .padding()
+                                    Group {
+                                        Text("Link")
+                                        Text("\(problems[picked].number)")
+                                        Text("\(problems[picked].letter)")
+                                    }
+                                    .padding()
                                 }
+                                .onAppear(perform: {
+                                    self.problems.remove(at: picked)
+                                })
                             }
                         }
                     }
