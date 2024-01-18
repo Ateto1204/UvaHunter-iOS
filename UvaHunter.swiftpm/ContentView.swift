@@ -41,7 +41,9 @@ struct ContentView: View {
                                 let picked: Int = .random(in: 0...problems.endIndex)
                                 HStack {
                                     Group {
-                                        Text("Link")
+                                        Link(destination: URL(string:  "https://domen111.github.io/UVa-Easy-Viewer/?\(problems[picked].number)")!, label: {
+                                            Text("Link")
+                                        })
                                         Text("\(problems[picked].number)")
                                         Text("\(problems[picked].letter)")
                                     }
