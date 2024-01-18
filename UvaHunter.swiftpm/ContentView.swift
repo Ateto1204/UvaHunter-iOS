@@ -7,7 +7,6 @@ struct ContentView: View {
     @State private var userId: String = ""
     @State private var isButtonPressed: Bool = false
     @State private var problems: [Item] = []
-    @State private var name: String = ""
     @State private var hasResponsed: Bool = true
     
     var body: some View {
