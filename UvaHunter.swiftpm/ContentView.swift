@@ -7,9 +7,9 @@ struct ContentView: View {
     @State private var userId: String = ""
     @State private var isButtonPressed: Bool = false
     @State private var problems: [Item] = []
-    @State private var name: String = ""
     @State private var hasResponsed: Bool = true
     @State private var picked: [Int] = []
+    @State private var showAlert: Bool = false
     
     var body: some View {
         ZStack {
@@ -21,40 +21,57 @@ struct ContentView: View {
                         .cornerRadius(6)
                         .padding()
                     Button {
-                        self.hasResponsed = false
-                        getUserId(userName: userName)
-                        getProblems(userId: userId)
-//                        getPicked()
+                        if userName.isEmpty {
+                            self.showAlert = true
+                        } else if hasResponsed {
+                            self.hasResponsed = false
+                            self.userName = ""
+                            getUserId(userName: userName)
+                            getProblems(userId: userId)
+                        }
                     } label: {
                         Image(systemName: "location.circle")
                             .resizable()
                             .scaledToFill()
+                            .foregroundColor(self.hasResponsed ? .accentColor : .secondary)
                             .frame(width: 36, height: 36)
                             .padding(.trailing, 20)
                     }
+                    .alert("Your username can not be empty.", isPresented: $showAlert) {
+                        Button("OK") {
+                            showAlert = false
+                        }
+                    }
                 }
+                .padding(.top, 50)
                 
                 Text("ID: \(userId)")
                     .padding()
                 ScrollView {
                     VStack(alignment: .leading) {
                         if hasResponsed && problems.count > 5 {
-                            ForEach(0..<5) { i in 
-                                HStack {
-                                    Group {
-                                        if !picked.isEmpty {
-                                            Link(destination: URL(string:  "https://domen111.github.io/UVa-Easy-Viewer/?\(problems[picked[i]].number)")!, label: {
-                                                Text("Link")
-                                            })
-                                            Text("\(problems[picked[i]].number)")
-                                            Text("\(problems[picked[i]].letter)")
+                            HStack {
+                                Spacer()
+                                VStack(alignment: .leading, spacing: 0) {
+                                    ForEach(0..<5) { i in 
+                                        HStack {
+                                            Group {
+                                                if !picked.isEmpty && picked.count >= 5 && problems.count > picked[i] {
+                                                    Link(destination: URL(string:  "https://domen111.github.io/UVa-Easy-Viewer/?\(problems[picked[i]].number)")!, label: {
+                                                        Text("Link")
+                                                    })
+                                                    Text("\(problems[picked[i]].number)")
+                                                    Text("\(problems[picked[i]].letter)")
+                                                }
+                                            }
+                                            .padding()
                                         }
+                                        .onAppear(perform: {
+                                            self.problems.remove(at: picked[i])
+                                        })
                                     }
-                                    .padding()
                                 }
-                                .onAppear(perform: {
-                                    self.problems.remove(at: picked[i])
-                                })
+                                Spacer()
                             }
                             
                             Button {
