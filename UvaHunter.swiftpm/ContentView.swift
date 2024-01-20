@@ -7,7 +7,9 @@ struct ContentView: View {
     @State private var userId: String = ""
     @State private var isButtonPressed: Bool = false
     @State private var problems: [Item] = []
+    @State private var name: String = ""
     @State private var hasResponsed: Bool = true
+    @State private var picked: [Int] = []
     
     var body: some View {
         ZStack {
@@ -22,6 +24,7 @@ struct ContentView: View {
                         self.hasResponsed = false
                         getUserId(userName: userName)
                         getProblems(userId: userId)
+//                        getPicked()
                     } label: {
                         Image(systemName: "location.circle")
                             .resizable()
@@ -35,22 +38,38 @@ struct ContentView: View {
                     .padding()
                 ScrollView {
                     VStack(alignment: .leading) {
-                        if problems.count > 5 {
+                        if hasResponsed && problems.count > 5 {
                             ForEach(0..<5) { i in 
-                                let picked: Int = .random(in: 0...problems.endIndex)
                                 HStack {
                                     Group {
-                                        Link(destination: URL(string:  "https://domen111.github.io/UVa-Easy-Viewer/?\(problems[picked].number)")!, label: {
-                                            Text("Link")
-                                        })
-                                        Text("\(problems[picked].number)")
-                                        Text("\(problems[picked].letter)")
+                                        if !picked.isEmpty {
+                                            Link(destination: URL(string:  "https://domen111.github.io/UVa-Easy-Viewer/?\(problems[picked[i]].number)")!, label: {
+                                                Text("Link")
+                                            })
+                                            Text("\(problems[picked[i]].number)")
+                                            Text("\(problems[picked[i]].letter)")
+                                        }
                                     }
                                     .padding()
                                 }
                                 .onAppear(perform: {
-                                    self.problems.remove(at: picked)
+                                    self.problems.remove(at: picked[i])
                                 })
+                            }
+                            
+                            Button {
+                                getPicked()
+                            } label: {
+                                HStack {
+                                    Spacer()
+                                    Text("Refresh")
+                                        .foregroundColor(.white)
+                                        .padding()
+                                        .background(Color.accentColor)
+                                        .cornerRadius(12)
+                                        .padding()
+                                    Spacer()
+                                }
                             }
                         }
                     }
@@ -63,6 +82,14 @@ struct ContentView: View {
         }
     }
     
+    func getPicked() {
+        picked.removeAll()
+        for i in 1...5 {
+            var p: Int = .random(in: 0...problems.endIndex)
+            picked.append(p)
+        }
+    }
+    
     func getProblems(userId: String) {
         if let url = URL(string: "https://uhunt.onlinejudge.org/api/p/unsolved/\(userId)") {
             Task {
@@ -71,6 +98,7 @@ struct ContentView: View {
                     let decodedData = try JSONDecoder().decode([Item].self, from: data)
                     self.problems = decodedData
                     self.hasResponsed = true
+                    getPicked()
                 } catch {
                     print(error)
                 }
