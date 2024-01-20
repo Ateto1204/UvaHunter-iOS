@@ -1,7 +1,10 @@
 import SwiftUI
 import Foundation
+import Network
 
 struct ContentView: View {
+    
+    @ObservedObject private var networkManager: NetworkManager = NetworkManager()
     
     @State private var userName: String = ""
     @State private var userId: String = ""
@@ -12,90 +15,99 @@ struct ContentView: View {
     @State private var showAlert: Bool = false
     
     var body: some View {
-        ZStack {
-            VStack {
-                HStack {
-                    TextField("Enter the user name", text: $userName)
-                        .padding()
-                        .background(Color.gray)
-                        .cornerRadius(6)
-                        .padding()
-                    Button {
-                        if userName.isEmpty {
-                            self.showAlert = true
-                        } else if hasResponsed {
-                            self.hasResponsed = false
-                            self.userName = ""
-                            getUserId(userName: userName)
-                            getProblems(userId: userId)
-                        }
-                    } label: {
-                        Image(systemName: "location.circle")
-                            .resizable()
-                            .scaledToFill()
-                            .foregroundColor(self.hasResponsed ? .accentColor : .secondary)
-                            .frame(width: 36, height: 36)
-                            .padding(.trailing, 20)
-                    }
-                    .alert("Your username can not be empty.", isPresented: $showAlert) {
-                        Button("OK") {
-                            showAlert = false
-                        }
-                    }
-                }
-                .padding(.top, 50)
-                
-                Text("ID: \(userId)")
-                    .padding()
-                ScrollView {
-                    VStack(alignment: .leading) {
-                        if hasResponsed && problems.count > 5 {
+        NavigationStack {
+            ZStack {
+                if networkManager.isNetworkAvailable {
+                    ZStack {
+                        VStack {
                             HStack {
-                                Spacer()
-                                VStack(alignment: .leading, spacing: 0) {
-                                    ForEach(0..<5) { i in 
-                                        HStack {
-                                            Group {
-                                                if !picked.isEmpty && picked.count >= 5 && problems.count > picked[i] {
-                                                    Link(destination: URL(string:  "https://domen111.github.io/UVa-Easy-Viewer/?\(problems[picked[i]].number)")!, label: {
-                                                        Text("Link")
-                                                    })
-                                                    Text("\(problems[picked[i]].number)")
-                                                    Text("\(problems[picked[i]].letter)")
-                                                }
-                                            }
-                                            .padding()
-                                        }
-                                        .onAppear(perform: {
-                                            self.problems.remove(at: picked[i])
-                                        })
+                                TextField("Enter the user name", text: $userName)
+                                    .padding()
+                                    .background(Color.gray)
+                                    .cornerRadius(6)
+                                    .padding()
+                                Button {
+                                    if userName.isEmpty {
+                                        self.showAlert = true
+                                    } else if hasResponsed {
+                                        self.hasResponsed = false
+                                        self.userName = ""
+                                        getUserId(userName: userName)
+                                        getProblems(userId: userId)
+                                    }
+                                } label: {
+                                    Image(systemName: "location.circle")
+                                        .resizable()
+                                        .scaledToFill()
+                                        .foregroundColor(self.hasResponsed ? .accentColor : .secondary)
+                                        .frame(width: 36, height: 36)
+                                        .padding(.trailing, 20)
+                                }
+                                .alert("Your username can not be empty.", isPresented: $showAlert) {
+                                    Button("OK") {
+                                        showAlert = false
                                     }
                                 }
-                                Spacer()
                             }
+                            .padding(.top, 15)
                             
-                            Button {
-                                getPicked()
-                            } label: {
-                                HStack {
-                                    Spacer()
-                                    Text("Refresh")
-                                        .foregroundColor(.white)
-                                        .padding()
-                                        .background(Color.accentColor)
-                                        .cornerRadius(12)
-                                        .padding()
-                                    Spacer()
+                            Text("ID: \(userId)")
+                                .padding()
+                            ScrollView {
+                                VStack(alignment: .leading) {
+                                    if hasResponsed && problems.count > 5 {
+                                        HStack {
+                                            Spacer()
+                                            VStack(alignment: .leading, spacing: 0) {
+                                                ForEach(0..<5) { i in 
+                                                    HStack {
+                                                        Group {
+                                                            if !picked.isEmpty && picked.count >= 5 && problems.count > picked[i] {
+                                                                Link(destination: URL(string:  "https://domen111.github.io/UVa-Easy-Viewer/?\(problems[picked[i]].number)")!, label: {
+                                                                    Text("Link")
+                                                                })
+                                                                Text("\(problems[picked[i]].number)")
+                                                                Text("\(problems[picked[i]].letter)")
+                                                            }
+                                                        }
+                                                        .padding()
+                                                    }
+                                                    .onAppear(perform: {
+                                                        self.problems.remove(at: picked[i])
+                                                    })
+                                                }
+                                            }
+                                            Spacer()
+                                        }
+                                        
+                                        Button {
+                                            getPicked()
+                                        } label: {
+                                            HStack {
+                                                Spacer()
+                                                Text("Refresh")
+                                                    .foregroundColor(.white)
+                                                    .padding()
+                                                    .background(Color.accentColor)
+                                                    .cornerRadius(12)
+                                                    .padding()
+                                                Spacer()
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
+                        if !hasResponsed {
+                            ProgressView()
+                                .padding()
+                        }
                     }
+                } else {
+                    ContentUnavailableView("No Internet Connect", systemImage: "wifi.slash")
                 }
             }
-            if !hasResponsed {
-                ProgressView()
-                    .padding()
-            }
+            .navigationTitle("UVa Hunter")
         }
     }
     
@@ -128,9 +140,9 @@ struct ContentView: View {
             Task {
                 let (data, response) = try await URLSession.shared.data(from: url)
                 if let id = String(data: data, encoding: .utf8) {
-                    DispatchQueue.main.sync {
+//                    DispatchQueue.main.sync {
                         self.userId = id
-                    }
+//                    }
                 }
             }
         }
@@ -151,5 +163,19 @@ extension Item: Codable {
         let letter = try container.decode(String.self)
         
         self.init(number: number, letter: letter)
+    }
+}
+
+extension ContentView {
+    class NetworkManager: ObservableObject {
+        let monitor = NWPathMonitor()
+        @Published var isNetworkAvailable: Bool = false
+        
+        init() {
+            monitor.pathUpdateHandler = { path in 
+                self.isNetworkAvailable = path.status == .satisfied
+            }
+            monitor.start(queue: DispatchQueue.global())
+        }
     }
 }
