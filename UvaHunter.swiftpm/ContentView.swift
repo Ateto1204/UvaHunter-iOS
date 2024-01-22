@@ -53,7 +53,7 @@ struct ContentView: View {
                             
                             Text("ID: \(userId)")
                                 .padding()
-                            ScrollView {
+                            List {
                                 VStack(alignment: .leading) {
                                     if hasResponsed && problems.count > 5 {
                                         HStack {
@@ -98,6 +98,10 @@ struct ContentView: View {
                                 }
                             }
                         }
+                        .refreshable {
+                            await getPicked()
+                        }
+                        
                         if !hasResponsed {
                             ProgressView()
                                 .padding()
