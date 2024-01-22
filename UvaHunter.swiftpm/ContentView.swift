@@ -27,13 +27,15 @@ struct ContentView: View {
                                     .cornerRadius(6)
                                     .padding()
                                 Button {
-                                    if userName.isEmpty {
-                                        self.showAlert = true
-                                    } else if hasResponsed {
-                                        self.hasResponsed = false
-                                        self.userName = ""
-                                        getUserId(userName: userName)
-                                        getProblems(userId: userId)
+                                    if hasResponsed {
+                                        if userName.isEmpty {
+                                            self.showAlert = true
+                                        } else {
+                                            self.hasResponsed = false
+                                            self.userName = ""
+                                            getUserId(userName: userName)
+                                            getProblems(userId: userId)
+                                        }
                                     }
                                 } label: {
                                     Image(systemName: "location.circle")
@@ -53,7 +55,7 @@ struct ContentView: View {
                             
                             Text("ID: \(userId)")
                                 .padding()
-                            List {
+                            ScrollView {
                                 VStack(alignment: .leading) {
                                     if hasResponsed && problems.count > 5 {
                                         HStack {
