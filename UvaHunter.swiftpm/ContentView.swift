@@ -7,6 +7,7 @@ struct ContentView: View {
     @ObservedObject private var networkManager: NetworkManager = NetworkManager()
     
     @State private var userName: String = ""
+    @State private var userInput: String = ""
     @State private var userId: String = ""
     @State private var isButtonPressed: Bool = false
     @State private var problems: [Item] = []
@@ -19,7 +20,7 @@ struct ContentView: View {
             ZStack {
                 if networkManager.isNetworkAvailable {
                     ZStack {
-                        VStack {
+                        VStack(spacing: 0) {
                             HStack {
                                 TextField("Enter the user name", text: $userName)
                                     .padding()
@@ -52,21 +53,21 @@ struct ContentView: View {
                                 }
                             }
                             .padding(.top, 15)
-
+                            
                             HStack {
-                                TextField("Enter the user name", text: $userName)
+                                TextField(userId.isEmpty ? "Enter the user ID" : "user ID: \(userId)", text: $userInput)
                                     .padding()
                                     .background(Color.gray)
                                     .cornerRadius(6)
                                     .padding()
                                 Button {
                                     if hasResponsed {
-                                        if userName.isEmpty {
+                                        if userInput.isEmpty {
                                             self.showAlert = true
                                         } else {
                                             self.hasResponsed = false
-                                            self.userName = ""
-                                            getUserId(userName: userName)
+                                            self.userInput = ""
+                                            getUserId(userName: userInput)
                                             getProblems(userId: userId)
                                         }
                                     }
@@ -78,15 +79,13 @@ struct ContentView: View {
                                         .frame(width: 36, height: 36)
                                         .padding(.trailing, 20)
                                 }
-                                .alert("Your username can not be empty.", isPresented: $showAlert) {
+                                .alert("Your user ID can not be empty.", isPresented: $showAlert) {
                                     Button("OK") {
                                         showAlert = false
                                     }
                                 }
                             }
                             
-                            Text("ID: \(userId)")
-                                .padding()
                             ScrollView {
                                 VStack(alignment: .leading) {
                                     if hasResponsed && problems.count > 5 {
