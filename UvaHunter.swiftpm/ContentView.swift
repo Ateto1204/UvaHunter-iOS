@@ -52,6 +52,38 @@ struct ContentView: View {
                                 }
                             }
                             .padding(.top, 15)
+
+                            HStack {
+                                TextField("Enter the user name", text: $userName)
+                                    .padding()
+                                    .background(Color.gray)
+                                    .cornerRadius(6)
+                                    .padding()
+                                Button {
+                                    if hasResponsed {
+                                        if userName.isEmpty {
+                                            self.showAlert = true
+                                        } else {
+                                            self.hasResponsed = false
+                                            self.userName = ""
+                                            getUserId(userName: userName)
+                                            getProblems(userId: userId)
+                                        }
+                                    }
+                                } label: {
+                                    Image(systemName: "location.circle")
+                                        .resizable()
+                                        .scaledToFill()
+                                        .foregroundColor(self.hasResponsed ? .accentColor : .secondary)
+                                        .frame(width: 36, height: 36)
+                                        .padding(.trailing, 20)
+                                }
+                                .alert("Your username can not be empty.", isPresented: $showAlert) {
+                                    Button("OK") {
+                                        showAlert = false
+                                    }
+                                }
+                            }
                             
                             Text("ID: \(userId)")
                                 .padding()
