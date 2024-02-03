@@ -33,9 +33,10 @@ struct ContentView: View {
                                             self.showAlert = true
                                         } else {
                                             self.hasResponsed = false
-                                            self.userName = ""
+                                            self.userId = ""
                                             getUserId(userName: userName)
-                                            getProblems(userId: userId)
+                                            self.userName = ""
+//                                            getProblems(userId: userId)
                                         }
                                     }
                                 } label: {
@@ -66,9 +67,9 @@ struct ContentView: View {
                                             self.showAlert = true
                                         } else {
                                             self.hasResponsed = false
-                                            self.userInput = ""
-                                            getUserId(userName: userInput)
+                                            self.userId = userInput
                                             getProblems(userId: userId)
+                                            self.userInput = ""
                                         }
                                     }
                                 } label: {
@@ -85,50 +86,55 @@ struct ContentView: View {
                                     }
                                 }
                             }
-                            
-                            ScrollView {
-                                VStack(alignment: .leading) {
-                                    if hasResponsed && problems.count > 5 {
-                                        HStack {
-                                            Spacer()
-                                            VStack(alignment: .leading, spacing: 0) {
-                                                ForEach(0..<5) { i in 
-                                                    HStack {
-                                                        Group {
-                                                            if !picked.isEmpty && picked.count >= 5 && problems.count > picked[i] {
-                                                                Link(destination: URL(string:  "https://domen111.github.io/UVa-Easy-Viewer/?\(problems[picked[i]].number)")!, label: {
-                                                                    Text("Link")
-                                                                })
-                                                                Text("\(problems[picked[i]].number)")
-                                                                Text("\(problems[picked[i]].letter)")
-                                                            }
-                                                        }
-                                                        .padding()
-                                                    }
-                                                    .onAppear(perform: {
-                                                        self.problems.remove(at: picked[i])
-                                                    })
-                                                }
-                                            }
-                                            Spacer()
-                                        }
-                                        
-                                        Button {
-                                            getPicked()
-                                        } label: {
+                            if hasResponsed && userId == "640140" || userId == "0"{
+                                ContentUnavailableView("Username does not exist", systemImage: "exclamationmark.triangle.fill")
+                            } else if hasResponsed {
+                                ScrollView {
+                                    VStack(alignment: .leading) {
+                                        if hasResponsed && problems.count > 5 {
                                             HStack {
                                                 Spacer()
-                                                Text("Refresh")
-                                                    .foregroundColor(.white)
-                                                    .padding()
-                                                    .background(Color.accentColor)
-                                                    .cornerRadius(12)
-                                                    .padding()
+                                                VStack(alignment: .leading, spacing: 0) {
+                                                    ForEach(0..<5) { i in 
+                                                        HStack {
+                                                            Group {
+                                                                if !picked.isEmpty && picked.count >= 5 && problems.count > picked[i] {
+                                                                    Link(destination: URL(string:  "https://domen111.github.io/UVa-Easy-Viewer/?\(problems[picked[i]].number)")!, label: {
+                                                                        Text("Link")
+                                                                    })
+                                                                    Text("\(problems[picked[i]].number)")
+                                                                    Text("\(problems[picked[i]].letter)")
+                                                                }
+                                                            }
+                                                            .padding()
+                                                        }
+                                                        .onAppear(perform: {
+                                                            self.problems.remove(at: picked[i])
+                                                        })
+                                                    }
+                                                }
                                                 Spacer()
+                                            }
+                                            
+                                            Button {
+                                                getPicked()
+                                            } label: {
+                                                HStack {
+                                                    Spacer()
+                                                    Text("Refresh")
+                                                        .foregroundColor(.white)
+                                                        .padding()
+                                                        .background(Color.accentColor)
+                                                        .cornerRadius(12)
+                                                        .padding()
+                                                    Spacer()
+                                                }
                                             }
                                         }
                                     }
                                 }
+                            } else {
+                                Spacer()
                             }
                         }
                         .refreshable {
@@ -150,21 +156,22 @@ struct ContentView: View {
     
     func getPicked() {
         picked.removeAll()
-        for i in 1...5 {
-            var p: Int = .random(in: 0...problems.endIndex)
+        for _ in 1...5 {
+            let p: Int = .random(in: 0...problems.endIndex)
             picked.append(p)
         }
     }
     
     func getProblems(userId: String) {
+        print("get problem userid: \(userId)")
         if let url = URL(string: "https://uhunt.onlinejudge.org/api/p/unsolved/\(userId)") {
             Task {
                 do {
                     let (data, response) = try await URLSession.shared.data(from: url)
                     let decodedData = try JSONDecoder().decode([Item].self, from: data)
                     self.problems = decodedData
-                    self.hasResponsed = true
                     getPicked()
+                    self.hasResponsed = true
                 } catch {
                     print(error)
                 }
@@ -175,11 +182,16 @@ struct ContentView: View {
     func getUserId(userName: String) {
         if let url = URL(string: "https://uhunt.onlinejudge.org/api/uname2uid/\(userName)") {
             Task {
-                let (data, response) = try await URLSession.shared.data(from: url)
-                if let id = String(data: data, encoding: .utf8) {
-//                    DispatchQueue.main.sync {
+                do {
+                    let (data, response) = try await URLSession.shared.data(from: url)
+                    if let id = String(data: data, encoding: .utf8) {
+                        //                    DispatchQueue.main.sync {
                         self.userId = id
-//                    }
+                        getProblems(userId: userId)
+                        //                    }
+                    }
+                } catch {
+                    print(error)
                 }
             }
         }
@@ -203,16 +215,14 @@ extension Item: Codable {
     }
 }
 
-extension ContentView {
-    class NetworkManager: ObservableObject {
-        let monitor = NWPathMonitor()
-        @Published var isNetworkAvailable: Bool = false
-        
-        init() {
-            monitor.pathUpdateHandler = { path in 
-                self.isNetworkAvailable = path.status == .satisfied
-            }
-            monitor.start(queue: DispatchQueue.global())
+class NetworkManager: ObservableObject {
+    let monitor = NWPathMonitor()
+    @Published var isNetworkAvailable: Bool = false
+    
+    init() {
+        monitor.pathUpdateHandler = { path in 
+            self.isNetworkAvailable = path.status == .satisfied
         }
+        monitor.start(queue: DispatchQueue.global())
     }
 }
