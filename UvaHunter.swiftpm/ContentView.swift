@@ -18,139 +18,158 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                if networkManager.isNetworkAvailable {
-                    ZStack {
-                        VStack(spacing: 0) {
-                            HStack {
-                                TextField("Enter the user name", text: $userName)
-                                    .padding()
-                                    .background(Color.gray)
-                                    .cornerRadius(6)
-                                    .padding()
-                                Button {
-                                    if hasResponsed {
-                                        if userName.isEmpty {
-                                            self.showAlert = true
-                                        } else {
-                                            self.hasResponsed = false
-                                            self.userId = ""
-                                            getUserId(userName: userName)
-                                            self.userName = ""
-//                                            getProblems(userId: userId)
-                                        }
-                                    }
-                                } label: {
-                                    Image(systemName: "location.circle")
-                                        .resizable()
-                                        .scaledToFill()
-                                        .foregroundColor(self.hasResponsed ? .accentColor : .secondary)
-                                        .frame(width: 36, height: 36)
-                                        .padding(.trailing, 20)
-                                }
-                                .alert("Your username can not be empty.", isPresented: $showAlert) {
-                                    Button("OK") {
-                                        showAlert = false
-                                    }
-                                }
-                            }
-                            .padding(.top, 15)
-                            
-                            HStack {
-                                TextField(userId.isEmpty ? "Enter the user ID" : "user ID: \(userId)", text: $userInput)
-                                    .padding()
-                                    .background(Color.gray)
-                                    .cornerRadius(6)
-                                    .padding()
-                                Button {
-                                    if hasResponsed {
-                                        if userInput.isEmpty {
-                                            self.showAlert = true
-                                        } else {
-                                            self.hasResponsed = false
-                                            self.userId = userInput
-                                            getProblems(userId: userId)
-                                            self.userInput = ""
-                                        }
-                                    }
-                                } label: {
-                                    Image(systemName: "location.circle")
-                                        .resizable()
-                                        .scaledToFill()
-                                        .foregroundColor(self.hasResponsed ? .accentColor : .secondary)
-                                        .frame(width: 36, height: 36)
-                                        .padding(.trailing, 20)
-                                }
-                                .alert("Your user ID can not be empty.", isPresented: $showAlert) {
-                                    Button("OK") {
-                                        showAlert = false
-                                    }
-                                }
-                            }
-                            if hasResponsed && userId == "640140" || userId == "0"{
-                                ContentUnavailableView("Username does not exist", systemImage: "exclamationmark.triangle.fill")
-                            } else if hasResponsed {
-                                ScrollView {
-                                    VStack(alignment: .leading) {
-                                        if hasResponsed && problems.count > 5 {
-                                            HStack {
-                                                Spacer()
-                                                VStack(alignment: .leading, spacing: 0) {
-                                                    ForEach(0..<5) { i in 
-                                                        HStack {
-                                                            Group {
-                                                                if !picked.isEmpty && picked.count >= 5 && problems.count > picked[i] {
-                                                                    Link(destination: URL(string:  "https://domen111.github.io/UVa-Easy-Viewer/?\(problems[picked[i]].number)")!, label: {
-                                                                        Text("Link")
-                                                                    })
-                                                                    Text("\(problems[picked[i]].number)")
-                                                                    Text("\(problems[picked[i]].letter)")
-                                                                }
-                                                            }
-                                                            .padding()
-                                                        }
-                                                        .onAppear(perform: {
-                                                            self.problems.remove(at: picked[i])
-                                                        })
-                                                    }
-                                                }
-                                                Spacer()
+                Color(red: 161/255, green: 180/255, blue: 150/255)
+                VStack(spacing: 0) {
+                    HStack {
+                        Text("UVaHunter")
+                            .font(.system(size: 36))
+                            .foregroundColor(.white)
+                            .bold()
+                            .padding(.leading, 27)
+                        Spacer()
+                    }
+                    .padding(.top, 23)
+                    
+                    if networkManager.isNetworkAvailable {
+                        ZStack {
+                            VStack(spacing: 0) {
+                                HStack {
+                                    TextField("Enter the user name", text: $userName)
+                                        .padding()
+                                        .background(Color.gray)
+                                        .cornerRadius(6)
+                                        .padding()
+                                    Button {
+                                        if hasResponsed {
+                                            if userName.isEmpty {
+                                                self.showAlert = true
+                                            } else {
+                                                self.hasResponsed = false
+                                                self.userId = ""
+                                                getUserId(userName: userName)
+                                                self.userName = ""
+                                                //                                            getProblems(userId: userId)
                                             }
-                                            
-                                            Button {
-                                                getPicked()
-                                            } label: {
+                                        }
+                                    } label: {
+                                        Image(systemName: "location.circle")
+                                            .resizable()
+                                            .scaledToFill()
+                                            .foregroundColor(self.hasResponsed ? Color(red: 228/255, green: 229/255, blue: 164/255) : .secondary)
+                                            .frame(width: 36, height: 36)
+                                            .padding(.trailing, 20)
+                                    }
+                                    .alert("Your username can not be empty.", isPresented: $showAlert) {
+                                        Button("OK") {
+                                            showAlert = false
+                                        }
+                                    }
+                                }
+                                .padding(.top, 15)
+                                
+                                HStack {
+                                    TextField(userId.isEmpty ? "Enter the user ID" : "user ID: \(userId)", text: $userInput)
+                                        .padding()
+                                        .background(Color.gray)
+                                        .cornerRadius(6)
+                                        .padding()
+                                    Button {
+                                        if hasResponsed {
+                                            if userInput.isEmpty {
+                                                self.showAlert = true
+                                            } else {
+                                                self.hasResponsed = false
+                                                self.userId = userInput
+                                                getProblems(userId: userId)
+                                                self.userInput = ""
+                                            }
+                                        }
+                                    } label: {
+                                        Image(systemName: "location.circle")
+                                            .resizable()
+                                            .scaledToFill()
+                                            .foregroundColor(self.hasResponsed ? Color(red: 228/255, green: 229/255, blue: 164/255) : .secondary)
+                                            .frame(width: 36, height: 36)
+                                            .padding(.trailing, 20)
+                                    }
+                                    .alert("Your user ID can not be empty.", isPresented: $showAlert) {
+                                        Button("OK") {
+                                            showAlert = false
+                                        }
+                                    }
+                                }
+                                if hasResponsed && userId == "640140" || userId == "0" {
+                                    VStack {
+                                        ContentUnavailableView("Username does not exist", systemImage: "exclamationmark.triangle.fill")
+                                            .padding(.bottom, 25)
+                                        Spacer()
+                                    }
+                                } else if hasResponsed {
+                                    ScrollView {
+                                        VStack(alignment: .leading) {
+                                            if hasResponsed && problems.count > 5 {
                                                 HStack {
                                                     Spacer()
-                                                    Text("Refresh")
-                                                        .foregroundColor(.white)
-                                                        .padding()
-                                                        .background(Color.accentColor)
-                                                        .cornerRadius(12)
-                                                        .padding()
+                                                    VStack(alignment: .leading, spacing: 0) {
+                                                        ForEach(0..<5) { i in 
+                                                            HStack {
+                                                                Group {
+                                                                    if !picked.isEmpty && picked.count >= 5 && problems.count > picked[i] {
+                                                                        Link(destination: URL(string:  "https://domen111.github.io/UVa-Easy-Viewer/?\(problems[picked[i]].number)")!, label: {
+                                                                            Text("Link")
+                                                                                .foregroundColor(Color(red: 228/255, green: 229/255, blue: 164/255))
+                                                                                .bold()
+                                                                        })
+                                                                        Text("\(problems[picked[i]].number)")
+                                                                        Text("\(problems[picked[i]].letter)")
+                                                                    }
+                                                                }
+                                                                .padding()
+                                                            }
+                                                            .onAppear(perform: {
+                                                                self.problems.remove(at: picked[i])
+                                                            })
+                                                        }
+                                                    }
                                                     Spacer()
+                                                }
+                                                
+                                                Button {
+                                                    getPicked()
+                                                } label: {
+                                                    HStack {
+                                                        Spacer()
+                                                        Text("Refresh")
+                                                            .foregroundColor(.white)
+                                                            .padding()
+                                                            .background(Color(red: 228/255, green: 229/255, blue: 164/255))
+                                                            .cornerRadius(12)
+                                                            .padding()
+                                                        Spacer()
+                                                    }
                                                 }
                                             }
                                         }
                                     }
+                                } else {
+                                    Spacer()
                                 }
-                            } else {
-                                Spacer()
+                            }
+                            .refreshable {
+                                await getPicked()
+                            }
+                            
+                            if !hasResponsed {
+                                ProgressView()
+                                    .padding()
                             }
                         }
-                        .refreshable {
-                            await getPicked()
-                        }
-                        
-                        if !hasResponsed {
-                            ProgressView()
-                                .padding()
-                        }
+                    } else {
+                        ContentUnavailableView("No Internet Connect", systemImage: "wifi.slash")
                     }
-                } else {
-                    ContentUnavailableView("No Internet Connect", systemImage: "wifi.slash")
                 }
             }
-            .navigationTitle("UVa Hunter")
+            .ignoresSafeArea()
         }
     }
     
