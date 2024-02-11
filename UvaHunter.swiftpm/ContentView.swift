@@ -20,15 +20,18 @@ struct ContentView: View {
             ZStack {
                 Color(red: 161/255, green: 180/255, blue: 150/255)
                 VStack(spacing: 0) {
+                    Spacer()
+                        .frame(height: 18)
                     HStack {
+                        Spacer()
+                            .frame(width: 12)
                         Text("UVaHunter")
                             .font(.system(size: 36))
                             .foregroundColor(.white)
                             .bold()
-                            .padding(.leading, 27)
                         Spacer()
                     }
-                    .padding(.top, 23)
+                    .padding()
                     
                     if networkManager.isNetworkAvailable {
                         ZStack {
@@ -141,6 +144,7 @@ struct ContentView: View {
                                                         Spacer()
                                                         Text("Refresh")
                                                             .foregroundColor(.white)
+                                                            .bold()
                                                             .padding()
                                                             .background(Color(red: 228/255, green: 229/255, blue: 164/255))
                                                             .cornerRadius(12)
