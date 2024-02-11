@@ -1,9 +1,9 @@
-import SwiftUI
-
 /**
  *
  * @author Ateto
  */
+
+import SwiftUI
 
 @main
 struct MyApp: App {
