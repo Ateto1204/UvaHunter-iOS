@@ -8,13 +8,13 @@ import PackageDescription
 import AppleProductTypes
 
 let package = Package(
-    name: "我的 App",
+    name: "UVaHunter",
     platforms: [
         .iOS("17.0")
     ],
     products: [
         .iOSApplication(
-            name: "我的 App",
+            name: "UVaHunter",
             targets: ["AppModule"],
             displayVersion: "1.0",
             bundleVersion: "1",
