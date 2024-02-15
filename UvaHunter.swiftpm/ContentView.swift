@@ -21,7 +21,7 @@ struct ContentView: View {
                 Color(red: 161/255, green: 180/255, blue: 150/255)
                 VStack(spacing: 0) {
                     Spacer()
-                        .frame(height: 18)
+                        .frame(height: 38)
                     HStack {
                         Spacer()
                             .frame(width: 12)
@@ -51,7 +51,7 @@ struct ContentView: View {
                                                 self.userId = ""
                                                 getUserId(userName: userName)
                                                 self.userName = ""
-                                                //                                            getProblems(userId: userId)
+                                                // getProblems(userId: userId)
                                             }
                                         }
                                     } label: {
@@ -123,7 +123,7 @@ struct ContentView: View {
                                                                                 .foregroundColor(Color(red: 228/255, green: 229/255, blue: 164/255))
                                                                                 .bold()
                                                                         })
-                                                                        Text("\(problems[picked[i]].number)")
+                                                                        Text(String(format: "%05d", problems[picked[i]].number))
                                                                         Text("\(problems[picked[i]].letter)")
                                                                     }
                                                                 }
