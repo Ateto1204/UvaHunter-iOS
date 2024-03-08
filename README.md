@@ -1,6 +1,6 @@
 # UvaHunter
-Enter UVa user name or ID return unsolved problems randomly
-
+Enter UVa user name or ID return unsolved problems randomly <br/>
+[UVa Hunter API](https://uhunt.onlinejudge.org/api)
 
 ### Initial Screen
 
